@@ -102,20 +102,20 @@ function App() {
 
   useEffect(() => {
     const interval = setTimeout(() => {
-      // setActive(() => {
-      //   if (active + 1 > reviews.length - 1) {
-      //     return 0;
-      //   } else {
-      //     return active + 1;
-      //   }
-      // });
-      // console.log("call");
-      nextElem();
+      if (active >= reviewsExtended.length - 2) {
+        setIsTransitioning(false);
+        setActive(0);
+        setTimeout(() => {
+          setIsTransitioning(true);
+        }, 500);
+      } else {
+        setActive((prev) => prev + 1);
+      }
     }, 2000);
     return () => {
       clearTimeout(interval);
     };
-  }, [nextElem]);
+  }, [active]);
 
   return (
     <div className="App bg-dark min-vh-100 ">
