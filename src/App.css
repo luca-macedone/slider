@@ -1,3 +1,23 @@
-.hidden {
-  display: none !important;
+.slider {
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 600px !important;
+  margin: auto;
+}
+
+.slider-wrapper {
+  display: flex;
+  padding: 80px 0px;
+  gap: 80px;
+  align-items: center;
+  justify-content: start;
+}
+
+.slider-wrapper.transition {
+  transition: transform 500ms ease;
+}
+
+.slider-item {
+  width: calc(100% - 80px) !important;
+  flex-shrink: 0;
 }

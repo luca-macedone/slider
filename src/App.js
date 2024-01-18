@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import "./App.css";
 import ReviewRating from "./ReviewRating";
 
@@ -68,55 +68,43 @@ const reviews = [
   },
 ];
 
+const first = { ...reviews[0], id: "first-c" };
+const last = { ...reviews[reviews.length - 1], id: "last-c" };
+
+const reviewsExtended = [last, ...reviews, first];
 function App() {
-  const [active, setActive] = useState(0);
+  const [active, setActive] = useState(1);
+  const [isTransitioning, setIsTransitioning] = useState(true);
 
-  useEffect(() => {
-    // console.log("use effect", active);
-  }, [active]);
-
-  const nextElem = (index) => {
-    let oldElem = active;
-
-    const articles = document.querySelectorAll("article");
-    //sconsole.log(articles);
-
-    if (index === oldElem) {
+  const prevElem = () => {
+    // -- no infinite scroll
+    // const newActive = active > 0 ? active - 1 : reviews.length - 1;
+    // setActive(newActive);
+    // -- infinite scroll
+    if (active === 1) {
+      setIsTransitioning(false);
+      setActive(reviewsExtended.length - 1);
       setTimeout(() => {
-        articles[index].classList.add("hidden");
-      }, 1000);
-      if (index + 1 === articles.length) {
-        articles[0].remove("hidden");
-      } else {
-        articles[index + 1].classList.remove("hidden");
-      }
-    }
-
-    if (active + 1 === reviews.length) {
-      setActive(0);
+        setIsTransitioning(true);
+      }, 500);
     } else {
-      setActive(active + 1);
+      setActive((prev) => prev - 1);
     }
   };
 
-  const prevElem = (index) => {
-    let oldElem = active;
-
-    const articles = document.querySelectorAll("article");
-    //sconsole.log(articles)
-    if (index === oldElem) {
-      articles[index].classList.add("hidden");
-      if (index - 1 <= 0) {
-        articles[articles.length - 1].remove("hidden");
-      } else {
-        articles[index - 1].classList.remove("hidden");
-      }
-    }
-
-    if (active - 1 <= 0) {
-      setActive(reviews.length - 1);
+  const nextElem = () => {
+    // -- no infinite scroll
+    // const newActive = active < reviews.length - 1 ? active + 1 : 0;
+    // setActive(newActive);
+    // -- infinite scroll
+    if (active === reviewsExtended.length - 2) {
+      setIsTransitioning(false);
+      setActive(0);
+      setTimeout(() => {
+        setIsTransitioning(true);
+      }, 500);
     } else {
-      setActive(active - 1);
+      setActive((prev) => prev + 1);
     }
   };
 
@@ -124,51 +112,53 @@ function App() {
     <div className="App bg-dark min-vh-100 ">
       <div className="container-sm py-5 ">
         <div className="row">
-          <div className="col-8 mx-auto mt-5 mb-5 p-5 d-flex gap-4 align-items-center">
-            {reviews.map((review, index) => {
-              return (
-                <article
-                  key={review.id}
-                  dataKey={index}
-                  className={
-                    index === active
-                      ? "card shadow-lg p-4 bg-dark text-secondary border-0 rounded-4 w-100"
-                      : "card shadow-lg p-4 bg-dark text-secondary border-0 rounded-4 w-100 hidden"
-                  }
-                >
-                  <h5 className="fw-bolder text-capitalize">
-                    {review.username}
-                  </h5>
-                  <p className="">{review.review}</p>
-                  <div className="text-warning d-flex align-items-center gap-1">
-                    <ReviewRating
-                      key={review.id + "-" + review.rating}
-                      rating={review.rating}
-                    ></ReviewRating>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-          <div className="mt-5 col-7 mx-auto d-flex align-items-center justify-content-between">
-            <button
-              type="button"
-              className="btn btn-info px-4 rounded-pill text-uppercase"
-              onClick={(index) => {
-                prevElem(index);
-              }}
+          <div className="slider">
+            <div
+              className={`slider-wrapper ${
+                isTransitioning ? "transition" : ""
+              }`}
+              style={{ transform: `translateX(-${active * 100}%)` }}
             >
-              prev
-            </button>
-            <button
-              type="button"
-              className="btn btn-info px-4 rounded-pill text-uppercase"
-              onClick={(index) => {
-                nextElem(index);
-              }}
-            >
-              next
-            </button>
+              {reviewsExtended.map((review, index) => {
+                return (
+                  <article
+                    key={review.id}
+                    className={
+                      index === 0
+                        ? "card shadow p-4 bg-dark text-secondary border-0 rounded-4 slider-item ms-4 "
+                        : "card shadow p-4 bg-dark text-secondary border-0 rounded-4 slider-item"
+                    }
+                  >
+                    <h5 className="fw-bolder text-capitalize">
+                      {review.username}
+                    </h5>
+                    <p className="">{review.review}</p>
+                    <div className="text-warning d-flex align-items-center gap-1">
+                      <ReviewRating
+                        key={review.id + "-" + review.rating}
+                        rating={review.rating}
+                      ></ReviewRating>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+            <div className="mt-5 mx-auto d-flex align-items-center justify-content-between">
+              <button
+                type="button"
+                className="btn btn-info px-4 rounded-pill text-uppercase"
+                onClick={prevElem}
+              >
+                prev
+              </button>
+              <button
+                type="button"
+                className="btn btn-info px-4 rounded-pill text-uppercase"
+                onClick={nextElem}
+              >
+                next
+              </button>
+            </div>
           </div>
         </div>
       </div>
