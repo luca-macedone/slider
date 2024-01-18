@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import ReviewRating from "./ReviewRating";
 
@@ -77,11 +77,7 @@ function App() {
   const [isTransitioning, setIsTransitioning] = useState(true);
 
   const prevElem = () => {
-    // -- no infinite scroll
-    // const newActive = active > 0 ? active - 1 : reviews.length - 1;
-    // setActive(newActive);
-    // -- infinite scroll
-    if (active === 1) {
+    if (active <= 1) {
       setIsTransitioning(false);
       setActive(reviewsExtended.length - 1);
       setTimeout(() => {
@@ -93,11 +89,7 @@ function App() {
   };
 
   const nextElem = () => {
-    // -- no infinite scroll
-    // const newActive = active < reviews.length - 1 ? active + 1 : 0;
-    // setActive(newActive);
-    // -- infinite scroll
-    if (active === reviewsExtended.length - 2) {
+    if (active >= reviewsExtended.length - 2) {
       setIsTransitioning(false);
       setActive(0);
       setTimeout(() => {
@@ -107,6 +99,23 @@ function App() {
       setActive((prev) => prev + 1);
     }
   };
+
+  useEffect(() => {
+    const interval = setTimeout(() => {
+      // setActive(() => {
+      //   if (active + 1 > reviews.length - 1) {
+      //     return 0;
+      //   } else {
+      //     return active + 1;
+      //   }
+      // });
+      // console.log("call");
+      nextElem();
+    }, 2000);
+    return () => {
+      clearTimeout(interval);
+    };
+  }, [nextElem]);
 
   return (
     <div className="App bg-dark min-vh-100 ">
